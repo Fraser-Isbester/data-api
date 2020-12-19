@@ -4,8 +4,9 @@ STACKNAME=${2:-"data-api"}
 S3_BUCKET=${3:-"fraycorp-deployment-artifacts"}
 API_LOG_GROUP=${5:-"/aws/apigateway/${STAGE}-${STACKNAME}-Api"}
 
-# Usefuls
+# Useful variables
 CURRENTDATE=`date +"%Y-%m-%dT%T"`
+BUILD_ID=`uuidgen`
 
 # # Build resources
 
@@ -16,7 +17,7 @@ aws2 s3 mb s3://$S3_BUCKET
 sam deploy \
     --stack-name $STACKNAME \
     --s3-bucket $S3_BUCKET \
-    --s3-prefix $STACKNAME/$STAGE \
+    --s3-prefix $STACKNAME/$STAGE/$BUILD_ID \
     --capabilities CAPABILITY_IAM \
     --parameter-overrides \
         ParameterKey=Stage,ParameterValue=${STAGE} \
