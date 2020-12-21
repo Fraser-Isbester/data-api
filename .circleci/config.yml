@@ -30,9 +30,11 @@ jobs:
 
 workflows:
   build-on-push:
-    when:
-      - equal: [master, << pipeline.git.branch >>]
     jobs:
       - sam-build-deploy:
           context: aws-personal
+          filters:
+            branches:
+              only:
+                - master
 
