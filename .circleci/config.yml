@@ -28,20 +28,10 @@ jobs:
           no-fail-on-empty-changeset: true
           profile-name: circleci
 
-      # - run:
-      #     command: |
-      #       sam deploy \
-      #           --stack-name $STACKNAME \
-      #           --s3-bucket $S3_BUCKET \
-      #           --capabilities CAPABILITY_IAM \
-      #           --parameter-overrides \
-      #               ParameterKey=Stage,ParameterValue=${STAGE} \
-      #               ParameterKey=Stackname,ParameterValue=${STACKNAME} \
-      #               ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET} \
-      #           --profile circleci
-
 workflows:
   build-on-push:
+    when:
+      - equal: [master, << pipeline.git.branch >>]
     jobs:
       - sam-build-deploy:
           context: aws-personal
