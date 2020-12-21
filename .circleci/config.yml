@@ -37,7 +37,7 @@ jobs:
   sam-build-deploy:
     executor: aws-sam/default
     steps:
-      # - checkout
+      - checkout
       - run: |
           sam deploy \
               --stack-name $STACKNAME \
@@ -65,8 +65,6 @@ jobs:
 workflows:
   build-on-push:
     jobs:
-
-      - checkout
 
       - env-setup:
           name: Environment Setup
