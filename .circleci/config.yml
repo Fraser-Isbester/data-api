@@ -66,20 +66,16 @@ workflows:
   build-on-push:
     jobs:
 
-      - env-setup:
-          name: Environment Setup
-
+      - env-setup
       - aws-cli-setup:
           context: aws-personal
           requires:
             - env-setup
 
       - install-sam:
-          name: install SAM
           requires:
             - env-setup
 
       - sam-build-deploy:
-          name: Build deploy
           requires:
             - install-sam
