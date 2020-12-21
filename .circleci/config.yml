@@ -19,23 +19,29 @@ jobs:
   sam-build-deploy:
     executor: aws-sam/default
     environment:
+
+      AWS_DEFAULT_REGION: us-west-2
+
       STAGE: Dev
       STACKNAME: data-api
       S3_BUCKET: fraycorp-deployment-artifacts
     steps:
       - checkout
       - run: BUILD_ID=`date +"%Y-%m-%dT%T"`
-      - run: |
-          sam deploy \
-              --stack-name $STACKNAME \
-              --s3-bucket $S3_BUCKET \
-              --s3-prefix $STACKNAME/$STAGE/$BUILD_ID \
-              --capabilities CAPABILITY_IAM \
-              --parameter-overrides \
-                  ParameterKey=Stage,ParameterValue=${STAGE} \
-                  ParameterKey=Stackname,ParameterValue=${STACKNAME} \
-                  ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET} \
-              --profile-name circleci
+      - aws-sam/install:
+          profile-name: circleci
+      - run:
+          command: |
+            sam deploy \
+                --stack-name $STACKNAME \
+                --s3-bucket $S3_BUCKET \
+                --s3-prefix $STACKNAME/$STAGE/$BUILD_ID \
+                --capabilities CAPABILITY_IAM \
+                --parameter-overrides \
+                    ParameterKey=Stage,ParameterValue=${STAGE} \
+                    ParameterKey=Stackname,ParameterValue=${STACKNAME} \
+                    ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET} \
+                --profile-name circleci
 
   # Run unit tests
   unit-test:
