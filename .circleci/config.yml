@@ -19,15 +19,13 @@ jobs:
       - aws-sam/install:
           profile-name: circleci
       - aws-sam/deploy:
-          context: aws-personal
           stack-name: data-api
           template: template.yaml
-          s3-bucket: fraycorp-deployment-artifacts
           parameter-overrides: |
             ParameterKey=Stage,ParameterValue=${STAGE}
             ParameterKey=Stackname,ParameterValue=${STACKNAME}
             ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET}
-          no-fail-onempty-changeset: true
+          no-fail-on-empty-changeset: true
           profile-name: circleci
 
       # - run:
@@ -45,4 +43,6 @@ jobs:
 workflows:
   build-on-push:
     jobs:
-      - sam-build-deploy
+      - sam-build-deploy:
+          context: aws-personal
+
