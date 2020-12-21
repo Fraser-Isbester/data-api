@@ -15,30 +15,30 @@ jobs:
   #     - aws-sam/install:
   #         profile-name: circleci
 
-  sam-build-deploy:
-    executor: aws-sam/default
-    environment:
-      AWS_DEFAULT_REGION: us-west-2
+  # sam-build-deploy:
+  #   executor: aws-sam/default
+  #   environment:
+  #     AWS_DEFAULT_REGION: us-west-2
 
-      STAGE: Dev
-      STACKNAME: data-api
-      S3_BUCKET: fraycorp-deployment-artifacts
-    steps:
-      - checkout
-      - run: BUILD_ID=`date +"%Y-%m-%dT%T"`
-      - aws-sam/install:
-          profile-name: circleci
-      - run:
-          command: |
-            sam deploy \
-                --stack-name $STACKNAME \
-                --s3-bucket $S3_BUCKET \
-                --capabilities CAPABILITY_IAM \
-                --parameter-overrides \
-                    ParameterKey=Stage,ParameterValue=${STAGE} \
-                    ParameterKey=Stackname,ParameterValue=${STACKNAME} \
-                    ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET} \
-                --profile circleci
+  #     STAGE: Dev
+  #     STACKNAME: data-api
+  #     S3_BUCKET: fraycorp-deployment-artifacts
+  #   steps:
+  #     - checkout
+  #     - run: BUILD_ID=`date +"%Y-%m-%dT%T"`
+  #     - aws-sam/install:
+  #         profile-name: circleci
+  #     - run:
+  #         command: |
+  #           sam deploy \
+  #               --stack-name $STACKNAME \
+  #               --s3-bucket $S3_BUCKET \
+  #               --capabilities CAPABILITY_IAM \
+  #               --parameter-overrides \
+  #                   ParameterKey=Stage,ParameterValue=${STAGE} \
+  #                   ParameterKey=Stackname,ParameterValue=${STACKNAME} \
+  #                   ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET} \
+  #               --profile circleci
 
   # Run unit tests
   unit-test:
@@ -58,6 +58,7 @@ workflows:
       - aws-sam/deploy:
           stack-name: data-api
           template: template.yaml
+          s3-bucket: fraycorp-deployment-artifacts
           parameter-overrides: |
             ParameterKey=Stage,ParameterValue=Dev
             ParameterKey=Stackname,ParameterValue=data-api
