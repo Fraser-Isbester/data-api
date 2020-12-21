@@ -21,8 +21,11 @@ jobs:
   # Install SAM CLI
   install-sam:
     executor: aws-sam/default
+    environment:
+      AWS_DEFAULT_REGION: us-west-2
     steps:
-      - aws-sam/install
+      - aws-sam/install:
+          profile-name: circleci
 
   sam-build-deploy:
     executor: aws-sam/default
