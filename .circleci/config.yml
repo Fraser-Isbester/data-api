@@ -8,13 +8,13 @@ orbs:
 jobs:
 
 
-  aws-sam-config:
-    executor: aws-sam/default
-    environment:
-      AWS_DEFAULT_REGION: us-west-2
-    steps:
-      - aws-sam/install:
-          profile-name: circleci
+  # aws-sam-config:
+  #   executor: aws-sam/default
+  #   environment:
+  #     AWS_DEFAULT_REGION: us-west-2
+  #   steps:
+  #     - aws-sam/install:
+  #         profile-name: circleci
 
   sam-build-deploy:
     executor: aws-sam/default
@@ -58,9 +58,7 @@ jobs:
 workflows:
   build-on-push:
     jobs:
-      - aws-sam-config:
-          context: aws-personal
-
       - sam-build-deploy:
+          context: aws-personal
           requires:
             - aws-sam-config
