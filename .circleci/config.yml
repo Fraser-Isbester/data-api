@@ -58,8 +58,8 @@ workflows:
       - aws-sam/deploy:
           stack-name: data-api
           template: template.yaml
-          parameter-overrides:
-            - ParameterKey=Stage,ParameterValue=Dev
-            - ParameterKey=Stackname,ParameterValue=data-api
-            - ParameterKey=S3Bucket,ParameterValue=fraycorp-deployment-artifacts
+          parameter-overrides: |
+            ParameterKey=Stage,ParameterValue=Dev
+            ParameterKey=Stackname,ParameterValue=data-api
+            ParameterKey=S3Bucket,ParameterValue=fraycorp-deployment-artifacts
 
