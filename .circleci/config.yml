@@ -7,25 +7,15 @@ orbs:
 
 jobs:
 
-  # Configure AWS profile
-  aws-cli-setup:
-    executor: aws-cli/default
-    environment:
-      AWS_DEFAULT_REGION: us-west-2
-    steps:
-      - aws-cli/setup:
-          profile-name: circleci
-          aws-access-key-id: ACCESS_KEY_ID
-          aws-secret-access-key: SECRET_ACCESS_KEY
-
-  # Install SAM CLI
-  install-sam:
+  aws-sam-config:
     executor: aws-sam/default
     environment:
       AWS_DEFAULT_REGION: us-west-2
     steps:
       - aws-sam/install:
           profile-name: circleci
+          aws-access-key-id: ACCESS_KEY_ID
+          aws-secret-access-key: SECRET_ACCESS_KEY
 
   sam-build-deploy:
     executor: aws-sam/default
@@ -66,8 +56,11 @@ workflows:
 
       - aws-cli-setup:
           context: aws-personal
-      - install-sam
+
+          - install-sam:
+              requires:
+                - aws-cli-setup
+
       - sam-build-deploy:
           requires:
             - install-sam
-            - aws-cli-setup
