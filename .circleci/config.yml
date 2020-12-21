@@ -22,8 +22,8 @@ jobs:
           stack-name: data-api
           template: template.yaml
           parameter-overrides: |
-            ParameterKey=Stage,ParameterValue=${STAGE}
-            ParameterKey=Stackname,ParameterValue=${STACKNAME}
+            ParameterKey=Stage,ParameterValue=${STAGE} \
+            ParameterKey=Stackname,ParameterValue=${STACKNAME} \
             ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET}
           no-fail-on-empty-changeset: true
           profile-name: circleci
