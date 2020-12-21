@@ -6,62 +6,44 @@ orbs:
 
 jobs:
 
-
-  # aws-sam-config:
-  #   executor: aws-sam/default
-  #   environment:
-  #     AWS_DEFAULT_REGION: us-west-2
-  #   steps:
-  #     - aws-sam/install:
-  #         profile-name: circleci
-
-  # sam-build-deploy:
-  #   executor: aws-sam/default
-  #   environment:
-  #     AWS_DEFAULT_REGION: us-west-2
-
-  #     STAGE: Dev
-  #     STACKNAME: data-api
-  #     S3_BUCKET: fraycorp-deployment-artifacts
-  #   steps:
-  #     - checkout
-  #     - run: BUILD_ID=`date +"%Y-%m-%dT%T"`
-  #     - aws-sam/install:
-  #         profile-name: circleci
-  #     - run:
-  #         command: |
-  #           sam deploy \
-  #               --stack-name $STACKNAME \
-  #               --s3-bucket $S3_BUCKET \
-  #               --capabilities CAPABILITY_IAM \
-  #               --parameter-overrides \
-  #                   ParameterKey=Stage,ParameterValue=${STAGE} \
-  #                   ParameterKey=Stackname,ParameterValue=${STACKNAME} \
-  #                   ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET} \
-  #               --profile circleci
-
-  # Run unit tests
-  unit-test:
-    executor: sam/default
+  sam-build-deploy:
+    executor: aws-sam/default
+    environment:
+      AWS_DEFAULT_REGION: us-west-2
+      STAGE: Dev
+      STACKNAME: data-api
+      S3_BUCKET: fraycorp-deployment-artifacts
     steps:
-      - run: echo "ADD UNIT TESTS"
+      - checkout
+      - run: BUILD_ID=`echo $(date --iso-8601=seconds)`
+      - aws-sam/install:
+          profile-name: circleci
 
-  # Run smoke tests
-  smoke-test:
-    executor: sam/default
-    steps:
-      - run: echo "ADD SMOKE TESTS"
-
-workflows:
-  build-on-push:
-    jobs:
       - aws-sam/deploy:
           context: aws-personal
           stack-name: data-api
           template: template.yaml
           s3-bucket: fraycorp-deployment-artifacts
           parameter-overrides: |
-            ParameterKey=Stage,ParameterValue=Dev
-            ParameterKey=Stackname,ParameterValue=data-api
-            ParameterKey=S3Bucket,ParameterValue=fraycorp-deployment-artifacts
+            ParameterKey=Stage,ParameterValue=${STAGE}
+            ParameterKey=Stackname,ParameterValue=${STACKNAME}
+            ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET}
+          no-fail-onempty-changeset: true
+          profile-name: circleci
 
+      # - run:
+      #     command: |
+      #       sam deploy \
+      #           --stack-name $STACKNAME \
+      #           --s3-bucket $S3_BUCKET \
+      #           --capabilities CAPABILITY_IAM \
+      #           --parameter-overrides \
+      #               ParameterKey=Stage,ParameterValue=${STAGE} \
+      #               ParameterKey=Stackname,ParameterValue=${STACKNAME} \
+      #               ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET} \
+      #           --profile circleci
+
+# workflows:
+  build-on-push:
+    jobs:
+      - sam-build-deploy
