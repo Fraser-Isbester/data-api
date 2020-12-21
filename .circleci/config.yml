@@ -7,11 +7,6 @@ orbs:
 
 jobs:
 
-  # Export envs for use in CLI
-  export-envs:
-    steps:
-      - run: echo
-
   # Prep AWS env
   aws-cli-setup:
     executor: aws-cli/default
