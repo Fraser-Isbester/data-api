@@ -41,7 +41,7 @@ jobs:
                     ParameterKey=Stage,ParameterValue=${STAGE} \
                     ParameterKey=Stackname,ParameterValue=${STACKNAME} \
                     ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET} \
-                --profile-name circleci
+                --profile circleci
 
   # Run unit tests
   unit-test:
