@@ -7,16 +7,19 @@ orbs:
 
 jobs:
 
+  # Export envs for use in CLI
+  export-envs:
+    steps:
+      - run: echo
+
   # Prep AWS env
   aws-cli-setup:
     executor: aws-cli/default
     steps:
-      - checkout
       - aws-cli/setup:
           profile-name: default
-          aws-region: us-west-2
-          aws-access-key-id: $ACCESS_KEY_ID
-          aws-secret-access-key: $SECRET_ACCESS_KEY
+          aws-access-key-id: ACCESS_KEY_ID
+          aws-secret-access-key: SECRET_ACCESS_KEY
       - run: echo "Default profile created"
       - run: echo $ACCESS_KEY_ID
       - run: echo $SECRET_ACCESS_KEY
