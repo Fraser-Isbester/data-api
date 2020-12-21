@@ -7,9 +7,8 @@ orbs:
 
 jobs:
 
-  # Configure AWS profile
-  aws-cli-setup:
-    executor: aws-cli/default
+  # Set up the execution environment
+  env-setup:
     environment:
       AWS_DEFAULT_REGION: us-west-2
       STAGE: Dev
@@ -17,6 +16,11 @@ jobs:
       S3_BUCKET: fraycorp-deployment-artifacts
     steps:
       - run: BUILD_ID=`uuidgen`
+
+  # Configure AWS profile
+  aws-cli-setup:
+    executor: aws-cli/default
+    steps:
       - aws-cli/setup:
           profile-name: circleci
           aws-access-key-id: ACCESS_KEY_ID
@@ -31,7 +35,7 @@ jobs:
   sam-build-deploy:
     executor: aws-sam/default
     steps:
-      - checkout
+      # - checkout
       - run: |
           sam deploy \
               --stack-name $STACKNAME \
@@ -43,7 +47,6 @@ jobs:
                   ParameterKey=Stackname,ParameterValue=${STACKNAME} \
                   ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET} \
               --profile-name circleci
-
 
   # Run unit tests
   unit-test:
@@ -57,16 +60,26 @@ jobs:
     steps:
       - run: echo "ADD SMOKE TESTS"
 
-
 workflows:
   build-on-push:
     jobs:
+
+      - checkout
+
+      - env-setup:
+          name: Environment Setup
+
       - aws-cli-setup:
           context: aws-personal
+          requires:
+            - env-setup
 
       - install-sam:
           name: install SAM
+          requires:
+            - env-setup
 
       - sam-build-deploy:
-          name: build deploy
-
+          name: Build deploy
+          requires:
+            - install-sam
