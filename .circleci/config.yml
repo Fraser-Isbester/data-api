@@ -26,7 +26,7 @@ jobs:
   install-sam:
     executor: aws-sam/default
     steps:
-      - sam/install
+      - aws-sam/install
 
   sam-build-deploy:
     executor: aws-sam/default
