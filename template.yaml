@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: A fully service integrated DynamoDB API
+Description: A data API based on DynamoDB single table designs
 
 Parameters:
   Stage:
@@ -40,10 +40,25 @@ Resources:
 #       Name: !Sub ${Stage}-${Stackname}-Api
 #       StageName: !Sub ${Stage}
 
+  ReferenceTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${Stage}-${Stackname}-CICDTable
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+
 # # # Logging Space # # #
   APIGatewayLogGroup:
     Type: AWS::Logs::LogGroup
-    # Condition: CreateNewLogGroup
     Properties:
       LogGroupName: !Sub "/aws/apigateway/${Stage}-${Stackname}-Api"
       RetentionInDays: 7
