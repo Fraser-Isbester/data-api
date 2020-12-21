@@ -7,21 +7,11 @@ orbs:
 
 jobs:
 
-  # Set up the execution environment
-  env-setup:
-    executor: aws-cli/default
-    environment:
-      AWS_DEFAULT_REGION: us-west-2
-      STAGE: Dev
-      STACKNAME: data-api
-      S3_BUCKET: fraycorp-deployment-artifacts
-    steps:
-      - run:
-          command: BUILD_ID=`date +"%Y-%m-%dT%T"`
-
   # Configure AWS profile
   aws-cli-setup:
     executor: aws-cli/default
+    environment:
+      AWS_DEFAULT_REGION: us-west-2
     steps:
       - aws-cli/setup:
           profile-name: circleci
@@ -36,8 +26,13 @@ jobs:
 
   sam-build-deploy:
     executor: aws-sam/default
+    environment:
+      STAGE: Dev
+      STACKNAME: data-api
+      S3_BUCKET: fraycorp-deployment-artifacts
     steps:
       - checkout
+      - run: BUILD_ID=`date +"%Y-%m-%dT%T"`
       - run: |
           sam deploy \
               --stack-name $STACKNAME \
@@ -66,16 +61,10 @@ workflows:
   build-on-push:
     jobs:
 
-      - env-setup
       - aws-cli-setup:
           context: aws-personal
-          requires:
-            - env-setup
-
-      - install-sam:
-          requires:
-            - env-setup
-
+      - install-sam
       - sam-build-deploy:
           requires:
             - install-sam
+            - aws-cli-setup
