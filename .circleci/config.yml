@@ -57,4 +57,4 @@ workflows:
 
       - sam-build-deploy:
           requires:
-            - install-sam
+            - aws-sam-config
