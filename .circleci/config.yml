@@ -22,7 +22,7 @@ jobs:
       - run: echo $SECRET_ACCESS_KEY
 
 workflows:
-  aws_sam_build:
+  aws-cli-setup:
     jobs:
       - build:
           context: aws-personal
