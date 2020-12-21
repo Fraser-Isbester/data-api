@@ -9,13 +9,15 @@ jobs:
 
   # Set up the execution environment
   env-setup:
+    executor: aws-cli/default
     environment:
       AWS_DEFAULT_REGION: us-west-2
       STAGE: Dev
       STACKNAME: data-api
       S3_BUCKET: fraycorp-deployment-artifacts
     steps:
-      - run: BUILD_ID=`uuidgen`
+      - run:
+          command: BUILD_ID=`uuidgen`
 
   # Configure AWS profile
   aws-cli-setup:
