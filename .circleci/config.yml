@@ -60,5 +60,3 @@ workflows:
     jobs:
       - sam-build-deploy:
           context: aws-personal
-          requires:
-            - aws-sam-config
