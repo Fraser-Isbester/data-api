@@ -18,6 +18,15 @@ Parameters:
     Type: String
 
 Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 128
+    Runtime: python3.8
+    Tracing: Active
+    Tags:
+      env: !Ref Stage
+      Stack: !Ref Stackname
+
   Api:
     MinimumCompressionSize: 1000
     TracingEnabled: True
@@ -53,6 +62,7 @@ Resources:
           Parameters:
             Location: !Sub ${SwaggerFile}
 
+  # # Storage # #
   ODS:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -69,9 +79,77 @@ Resources:
         - AttributeName: sk
           KeyType: RANGE
 
-# # # Logging Space # # #
+  # # Compute # #
+  TableDesigner:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${Stage}-${Stackname}-TableDesigner
+      Description: >
+        Consumes a set of JsonSchemas and Access Patterns
+        and designs a Dynamo Resource
+      CodeUri: TableDesigner/
+      Handler: app.lambda_handler
+      # Role: !GetAtt PatientPortalBeRole.Arn
+
+# # # Logging # # #
   # APIGatewayLogGroup:
   #   Type: AWS::Logs::LogGroup
   #   Properties:
   #     LogGroupName: !Sub "/aws/apigateway/${Stage}-${Stackname}-Api"
   #     RetentionInDays: 7
+
+# # # Security # # #
+  TableDesignRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [lambda.amazonaws.com]
+            Action: [sts:AssumeRole]
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaENIManagementAccess
+        - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+        # - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+
+  OdsCreate:
+    Type: AWS::IAM::Policy
+    Properties:
+      Roles: [!Ref TableDesignRole]
+      PolicyName: !Sub ${Stage}-${Stackname}-OdsCreate
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: [dynamodb:PutItem]
+            Resource: [!GetAtt ODS.Arn]
+
+  OdsRead:
+    Type: AWS::IAM::Policy
+    Properties:
+      Roles: [!Ref TableDesignRole]
+      PolicyName: !Sub ${Stage}-${Stackname}-OdsRead
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:BatchGetItem
+              - dynamodb:GetItem
+              - dynamodb:Query
+            Resource: [!GetAtt ODS.Arn]
+
+  OdsUpdate:
+    Type: AWS::IAM::Policy
+    Properties:
+      Roles: [!Ref TableDesignRole]
+      PolicyName: !Sub ${Stage}-${Stackname}-OdsUpdate
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: [dynamodb:UpdateItem]
+            Resource: [!GetAtt ODS.Arn]
