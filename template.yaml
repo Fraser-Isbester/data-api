@@ -1,12 +1,16 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: A data API based on DynamoDB single table designs
+Description: DAPI backend
 
 Parameters:
   Stage:
     Type: String
     AllowedValues: [Prod, QA, Dev]
   Stackname:
+    Type: String
+  S3Bucket:
+    Type: String
+  SwaggerFile:
     Type: String
   ApiLogGroup:
     Description: The Existing API log group
@@ -17,33 +21,42 @@ Globals:
   Api:
     MinimumCompressionSize: 1000
     TracingEnabled: True
-    AccessLogSetting:
-      DestinationArn: !GetAtt APIGatewayLogGroup.Arn
-      Format: '{
-                  "request_id": "$context.requestId",
-                  "request_time": "$context.requestTimeEpoch",
-                  "integration_latency": "$context.integration.latency",
-                  "ip": "$context.identity.sourceIp",
-                  "resource": "$context.resourcePath",
-                  "method": "$context.httpMethod",
-                  "status": "$context.status",
-                  "response_length": "$context.responseLength",
-                  "response_error": "$context.error.messageString"
-              }'
+    # AccessLogSetting:
+    #   DestinationArn: !GetAtt APIGatewayLogGroup.Arn
+    #   Format: '{
+    #               "request_id": "$context.requestId",
+    #               "request_time": "$context.requestTimeEpoch",
+    #               "integration_latency": "$context.integration.latency",
+    #               "ip": "$context.identity.sourceIp",
+    #               "resource": "$context.resourcePath",
+    #               "method": "$context.httpMethod",
+    #               "status": "$context.status",
+    #               "response_length": "$context.responseLength",
+    #               "response_error": "$context.error.messageString"
+    #           }'
 
 Resources:
 
 # # # # API Definition # # #
-#   DynamoApi:
-#     Type: AWS::Serverless::Api
-#     Properties:
-#       Name: !Sub ${Stage}-${Stackname}-Api
-#       StageName: !Sub ${Stage}
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub ${Stage}-${Stackname}-Api
+      StageName: !Sub ${Stage}
+      Auth:
+        ResourcePolicy:
+          AwsAccountWhiteList: [!Ref AWS::AcountId]
+          IpRangeBlacklist: ["66.249.73.86"]
+      DefinitionBody:
+        'Fn::Transform':
+          Name: AWS::Include
+          Parameters:
+            Location: !Sub ${SwaggerFile}
 
-  ReferenceTable:
+  ODS:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub ${Stage}-${Stackname}-CICDTable
+      TableName: !Sub ${Stage}-${Stackname}-Table
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: pk
@@ -57,8 +70,8 @@ Resources:
           KeyType: RANGE
 
 # # # Logging Space # # #
-  APIGatewayLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub "/aws/apigateway/${Stage}-${Stackname}-Api"
-      RetentionInDays: 7
+  # APIGatewayLogGroup:
+  #   Type: AWS::Logs::LogGroup
+  #   Properties:
+  #     LogGroupName: !Sub "/aws/apigateway/${Stage}-${Stackname}-Api"
+  #     RetentionInDays: 7

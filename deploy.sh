@@ -2,16 +2,16 @@
 STAGE=${1:-"Dev"}
 STACKNAME=${2:-"data-api"}
 S3_BUCKET=${3:-"fraycorp-deployment-artifacts"}
-API_LOG_GROUP=${5:-"/aws/apigateway/${STAGE}-${STACKNAME}-Api"}
+API_LOG_GROUP=${4:-"/aws/apigateway/${STAGE}-${STACKNAME}-Api"}
+SWAGGER_FILEPATH=${5:-"/Users/fraser/Documents/Dev/personal/data-api/api.yaml"}
 
 # Useful variables
-CURRENTDATE=`date +"%Y-%m-%dT%T"`
 BUILD_ID=`uuidgen`
 
 # # Build resources
-
-# Creates your deployment
+SWAGGER_LOCATION="s3://$S3_BUCKET/$STACKNAME/$STAGE/$BUILD_ID/swagger.yaml"
 aws2 s3 mb s3://$S3_BUCKET
+aws2 s3 cp "$SWAGGER_FILEPATH" "$SWAGGER_LOCATION"
 
 # build deploy
 sam deploy \
@@ -22,4 +22,5 @@ sam deploy \
     --parameter-overrides \
         ParameterKey=Stage,ParameterValue=${STAGE} \
         ParameterKey=Stackname,ParameterValue=${STACKNAME} \
-        ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET}
+        ParameterKey=S3Bucket,ParameterValue=${S3_BUCKET} \
+        ParameterKey=SwaggerFile,ParameterValue=${SWAGGER_LOCATION}
