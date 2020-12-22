@@ -1,0 +1,40 @@
+{
+    "$id": "https://example.com/person.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "User",
+    "type": "object",
+    "properties": {
+      "pk": {
+        "type": "string",
+        "key": "HASH",
+        "alias": "UserID"
+      },
+      "sk": {
+        "type": "string",
+        "key": "RANGE"
+      },
+      "Age": {
+        "type": "integer",
+        "minimum": 0,
+        "filtersort": true
+      },
+      "Name": {
+          "type": "string",
+          "filtersort": true
+      },
+      "EyeColor": {
+          "type": "string",
+          "enum": ["brown", "green", "blue"],
+          "filtersort": true
+      },
+      "Hands": {
+        "type": "number"
+      },
+      "_createdAt": {
+        "type": "string"
+      },
+      "_createdBy": {
+        "type": "string"
+      }
+    }
+  }

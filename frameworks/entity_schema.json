@@ -1,0 +1,26 @@
+{
+    "$id": "https://example.com/person.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "${EntityName}",
+    "type": "object",
+    "properties": {
+      "pk": {
+        "type": "string",
+        "description": "Attribute1 description",
+        "key": "HASH",
+        "alias": "SomeGreatColumnName"
+      },
+      "sk": {
+        "type": "string",
+        "description": "Attribute2 description",
+        "key": "RANGE",
+        "alias": "SomeGreatColumnName2"
+      },
+      "{Attribute3}": {
+        "description": "Attribute3 description",
+        "type": "integer",
+        "minimum": 0,
+        "filtersort": "boolean"
+      }
+    }
+  }

@@ -1,0 +1,221 @@
+{
+  "ModelName": "RealEstate",
+  "ModelMetadata": {
+    "Author": "Fraser Isbester",
+    "DateCreated": "Dec 07, 2020, 02:25 PM",
+    "DateLastModified": "Dec 07, 2020, 03:17 PM",
+    "Description": "A simple model for real estate and related attributes",
+    "AWSService": "Amazon DynamoDB",
+    "Version": "2.0"
+  },
+  "DataModel": [
+    {
+      "TableName": "ETLJobs",
+      "KeyAttributes": {
+        "PartitionKey": {
+          "AttributeName": "pk",
+          "AttributeType": "S"
+        },
+        "SortKey": {
+          "AttributeName": "sk",
+          "AttributeType": "S"
+        }
+      },
+      "NonKeyAttributes": [
+        {
+          "AttributeName": "JobName",
+          "AttributeType": "M"
+        },
+        {
+          "AttributeName": "CreatedBy",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "CreatedOn",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "UpdatedBy",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "UpdatedOn",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "ScheduleExpression",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "FirstRun",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "LastRun",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "CompletedJobs",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "StartTime",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "EndTime",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "RecordsAttempted",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "RecordsSucceeded",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "SecondsToComplete",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "JobCompleted",
+          "AttributeType": "BOOL"
+        },
+        {
+          "AttributeName": "PartitionName",
+          "AttributeType": "SS"
+        },
+        {
+          "AttributeName": "PartitionValue",
+          "AttributeType": "N"
+        },
+        {
+          "AttributeName": "ProccessStatus",
+          "AttributeType": "N"
+        }
+      ],
+      "TableFacets": [
+        {
+          "FacetName": "Jobs",
+          "KeyAttributeAlias": {
+            "PartitionKeyAlias": "Job Name",
+            "SortKeyAlias": "sk"
+          },
+          "TableData": [
+            {
+              "pk": {
+                "S": "TestETL"
+              },
+              "sk": {
+                "S": "TestETL"
+              },
+              "JobName": {
+                "M": {}
+              },
+              "CreatedBy": {
+                "S": "Fraser"
+              },
+              "ScheduleExpression": {
+                "S": "cron(*,*,*,*,*)"
+              },
+              "CompletedJobs": {
+                "S": "0"
+              }
+            }
+          ],
+          "NonKeyAttributes": [
+            "JobName",
+            "CreatedBy",
+            "CreatedOn",
+            "UpdatedBy",
+            "UpdatedOn",
+            "ScheduleExpression",
+            "FIrstRun",
+            "LastRun",
+            "CompletedJobs"
+          ],
+          "DataAccess": {
+            "MySql": {}
+          }
+        },
+        {
+          "FacetName": "Invocation",
+          "KeyAttributeAlias": {
+            "PartitionKeyAlias": "Job Name",
+            "SortKeyAlias": "Invocation ID"
+          },
+          "TableData": [
+            {
+              "pk": {
+                "S": "ETLTest"
+              },
+              "sk": {
+                "S": "I#000001"
+              },
+              "RecordsAttempted": {
+                "N": "100000"
+              },
+              "RecordsSucceeded": {
+                "N": "90000"
+              },
+              "SecondsToComplete": {
+                "N": "2.34"
+              }
+            }
+          ],
+          "NonKeyAttributes": [
+            "StartTime",
+            "EndTime",
+            "RecordsAttempted",
+            "RecordsSucceeded",
+            "SecondsToComplete",
+            "JobCompleted"
+          ],
+          "DataAccess": {
+            "MySql": {}
+          }
+        },
+        {
+          "FacetName": "InvocationShard",
+          "KeyAttributeAlias": {
+            "PartitionKeyAlias": "InvocationID",
+            "SortKeyAlias": "Shard"
+          },
+          "TableData": [
+            {
+              "pk": {
+                "S": "I#000001"
+              },
+              "sk": {
+                "S": "S#0001"
+              },
+              "PartitionName": {
+                "SS": [
+                  "subject_id"
+                ]
+              },
+              "PartitionValue": {
+                "N": "5"
+              },
+              "ProccessStatus": {
+                "N": "1"
+              }
+            }
+          ],
+          "NonKeyAttributes": [
+            "PartitionName",
+            "PartitionValue",
+            "ProccessStatus"
+          ],
+          "DataAccess": {
+            "MySql": {}
+          }
+        }
+      ],
+      "DataAccess": {
+        "MySql": {}
+      }
+    }
+  ]
+}
