@@ -1,7 +1,9 @@
 """
 Input:
     - Entity Defintinos
+        type: json-schema
     - Access Patterns
+        type: json-custom
 Output:
     - DynamoDB Specification
 """
@@ -12,6 +14,14 @@ def lambda_handler(event, context):
 
 
 class Event:
+    """
+    {
+        body: {
+            entities: [],
+            access_patterns: []
+        }
+    }
+    """
 
     def __init__(self, event):
         self.event = event

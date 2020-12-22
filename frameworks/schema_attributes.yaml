@@ -1,0 +1,15 @@
+
+Type:
+
+  - String:
+      key_type: boolean
+      default: string
+      enum: list
+      regex: string
+
+  - Integer:
+      default: int
+      enum: list
+      minimum: int
+      maximum: int
+
