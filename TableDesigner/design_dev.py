@@ -1,11 +1,13 @@
 import json
-
+from dataclasses import asdict
+from data import *
 
 def main():
 
     entity_schemas = [
         "/Users/fraser/Documents/Dev/personal/data-api/examples/entity_1.json",
-        "/Users/fraser/Documents/Dev/personal/data-api/examples/entity_2.json"
+        "/Users/fraser/Documents/Dev/personal/data-api/examples/entity_2.json",
+        "/Users/fraser/Documents/Dev/personal/data-api/examples/entity_3.json"
     ]
 
     entities = []
@@ -15,14 +17,6 @@ def main():
         entities.append(entity_buffer)
 
     table = DynamoTable(entities, strict=True)
-
-    for attr in table.nonkey_attributes():
-        print(attr)
-
-    for key in table.key_attributes():
-        print(key)
-
-    print(table.infer_lsi())
 
 class Maps:
     PyToDyn = {
@@ -34,9 +28,11 @@ class Maps:
         "bool": "BOOL",
         "boolean": "BOOL",
         "dict": "M",
+        "object": "M",
         "bytes": "B",
         None: "NULL"
     }
+
 
 class Schema(object):
 
@@ -50,14 +46,11 @@ class Schema(object):
         if not self.schema.get("title", None):
             raise KeyError("Attribute: 'title' missing from schema")
 
-class AccessSchema(Schema):
-    pass
-
 
 class EntitySchema(Schema):
 
     MaxLSI = 3
-    MaxGSI = 3
+    MaxGSI = 10
 
     def __init__(self, *args, **kwargs):
         super(EntitySchema, self).__init__(*args, **kwargs)
@@ -105,22 +98,57 @@ class EntitySchema(Schema):
 
             yield return_attribute
 
+
 class DynamoTable:
 
     def __init__(self, entities, facets=None, strict=False):
         # control variables
         self.strict = strict
 
-        # raw data
+        # Raw data
         self.entities = self._set_listy(entities)
+        self.facets = self._set_listy(facets, allow_none=True)
 
-    def _set_listy(self, schema):
+        # persisted data objects
+        self.compile()
+
+    def compile(self):
+        """Re calculates everything in case entities changed"""
+        self.attributes = list(self.key_attributes()) \
+                        + list(self.nonkey_attributes()) \
+                        + list(self.infer_lsi())
+
+        self.keys = self.get_keys()  # object
+        self.lsis = self.get_lsis()  # object
+        self.gsis = []  # TODO: this one is hard
+        self.meta = TableMeta(
+            len(self.attributes),
+            len(self.entities),
+            len(self.lsis),
+            len(self.gsis)
+        )
+
+    def _set_listy(self, schema, allow_none=False):
+        if allow_none and not schema:
+            return None
         if isinstance(schema, list):
             return schema
         elif isinstance(schema, dict):
             return [schema]
         else:
             raise TypeError(f"Schemas must be of type list or dict not: {type(entities)}")
+
+    def asdict(self, refresh=False):
+        if refresh:
+            self.compile()
+
+        return asdict(TableStruct(
+            self.meta,
+            self.keys,
+            self.lsis,
+            self.gsis,
+            self.attributes
+        ))
 
     def key_attributes(self):
 
@@ -150,8 +178,10 @@ class DynamoTable:
                     KeyError(f"Unexpected key_name '{key_name}' in entity '{entity_name}'")
 
         for name, value in key_attributes.items():
-            yield value
-
+            yield {
+                "model": "key",
+                **value
+            }
 
     def nonkey_attributes(self):
 
@@ -164,42 +194,82 @@ class DynamoTable:
             entity_state[entity_name] = dict()
 
             for attribute in entity.attributes():
-                attr_name = attribute["attribute_name"]
-                attr_type = attribute["attribute_type"]
+                a = Attribute(attribute["attribute_name"], attribute["attribute_type"])
 
                 # If exists enrich, else add
-                if attr_name in nonkey_attributes.keys():
-                    if self.strict and attr_type != nonkey_attributes[attr_name]["attribute_type"]:
-                        raise TypeError(f"Attribute '{attr_name}' can not be multiple types: '{attr_type}' & '{nonkey_attributes[attr_name]['attribute_type']}'")
-                    nonkey_attributes[attr_name]["facets"].append(entity_name)
+                if a.attribute_name in nonkey_attributes.keys():
+                    if self.strict and a.attribute_type != nonkey_attributes[a.attribute_name]["attribute_type"]:  # TODO: .get -> attribute access
+                        raise TypeError(f"Attribute '{a.attribute_name}' can not be multiple types: '{a.attribute_type}' & '{nonkey_attributes[a.attribute_name]['attribute_type']}'")  # # TODO: .get -> attribute access
+                    nonkey_attributes[a.attribute_name]["facets"].append(entity_name)
                 else:
-                    nonkey_attributes[attr_name] = attribute
-                    nonkey_attributes[attr_name]["facets"] = [entity_name]
+                    nonkey_attributes[a.attribute_name] = attribute
+                    nonkey_attributes[a.attribute_name]["facets"] = [entity_name]
 
         for name, value in nonkey_attributes.items():
-            yield value
+            yield {
+                "model": "attribute",
+                **value
+            }
 
-    def infer_lsi(self):
+    def infer_lsi(self) -> set:
+        """Creates attr as LSI -> attr projection template
+        """
 
-        entity_state = dict()
+        lsi_map = {}
 
         for entity in self.entities:
 
+            entity_name = entity.schema["title"]
             lsi_seq = self._next_lsi()
 
-            entity_name = entity.schema.get("title")
-            entity_state[entity_name] = dict()
-
             for attribute in entity.attributes():
-                if attribute.get("filtersort"):
-                    entity_state[entity_name][next(lsi_seq)] = attribute["attribute_name"]
 
-        return entity_state
+                # Attributes with filtersort & are not a key item
+                if attribute.get("filtersort") and not attribute.get("key", None):
+                    lsi = next(lsi_seq)
+
+                    if not lsi in lsi_map.keys():
+                        lsi_map[lsi] = LSIAttribute(lsi, "S").asdict()
+
+                    # TODO: Will I need to include the from 'type' map..?
+                    lsi_map[lsi]["projection_sources"][entity_name] = attribute["attribute_name"]
+
+        for key, value in lsi_map.items():
+            yield {
+                "model": "LSI",
+                **value
+            }
 
     @staticmethod
     def _next_lsi():
         for i in range (0,3):
             yield "LSI"+str(i+1)
+
+    def get_keys(self):
+        return TableKeySchema([
+            Key("pk", "HASH"),
+            Key("sk", "RANGE")
+        ])
+
+    def get_lsis(self):
+
+        lsi_buffer = list()
+        for lsi_attribute in self.infer_lsi():
+            hash_key = Key("pk", "HASH")
+            range_key = Key(lsi_attribute["attribute_name"], "RANGE")
+
+            lsi = KeySchema(
+                lsi_attribute["attribute_name"],
+                [hash_key, range_key]
+            )
+            lsi_buffer.append(lsi)
+
+        return IndexStruct(lsi_buffer)
+
+    def get_gsis(self):
+        pass
+
+
 
 if __name__ == "__main__":
     main()
