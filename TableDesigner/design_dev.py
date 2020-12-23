@@ -1,6 +1,6 @@
 import json
 from dataclasses import asdict
-from data import *
+from .data import *
 
 def main():
 
