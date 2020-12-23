@@ -1,7 +1,7 @@
 import pytest
 
-from design_dev import Maps
-from design_dev import Schema
+from TableDesigner.design_dev import Maps, Schema
+# from TableDesigner.design_dev import Schema
 
 
 # Sanity
@@ -14,15 +14,16 @@ def test_type_map():
     assert Maps.PyToDyn["number"] == "N", "'Number' should cast to 'N'"
     assert Maps.PyToDyn["dict"] == "M", "'Dict' should cast to 'M'"
 
-def test_schema_valid():
-    s = Schema(Resources.SimpleSchema.valid)
+# def test_schema_valid():
+#     print(Resources.SimpleSchema.valid)
+#     _ = Schema(Resources.SimpleSchema.valid)
 
 def test_schema_invalid():
     with pytest.raises(KeyError):
-        a = Schema(Resources.SimpleSchema.missing_prop)
-        b = Schema(Resources.SimpleSchema.bad_prop)
-        c = Schema(Resources.SimpleSchema.missing_title)
-        d = Schema(Resources.SimpleSchema.bad_title)
+        _ = Schema(Resources.SimpleSchema.missing_prop)
+        _ = Schema(Resources.SimpleSchema.bad_prop)
+        _ = Schema(Resources.SimpleSchema.missing_title)
+        _ = Schema(Resources.SimpleSchema.bad_title)
 
 
 class Resources:
