@@ -55,7 +55,6 @@ Resources:
       Auth:
         ResourcePolicy:
           AwsAccountWhiteList: [!Ref AWS::AcountId]
-          IpRangeBlacklist: ["66.249.73.86"]
       DefinitionBody:
         'Fn::Transform':
           Name: AWS::Include
