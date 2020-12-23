@@ -1,7 +1,8 @@
 {
     "$id": "https://example.com/person.schema.json",
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Possession",
+    "title": "Project",
+    "required": ["pk", "sk"],
     "type": "object",
     "properties": {
       "pk": {
@@ -12,22 +13,11 @@
       "sk": {
         "type": "string",
         "key": "RANGE",
-        "alias": "ObjectName"
+        "alias": "ProjectID"
       },
       "Description": {
-        "type": "string"
-      },
-      "PurchasedFor": {
-        "type": "number"
-      },
-      "PurchasedDate": {
-        "type": "string"
-      },
-      "_createdAt": {
-        "type": "string"
-      },
-      "_createdBy": {
-        "type": "string"
+        "type": "string",
+        "default": "A Default project description"
       }
     }
   }

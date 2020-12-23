@@ -1,28 +1,22 @@
 {
     "$id": "https://example.com/person.schema.json",
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "User",
-    "required": ["pk", "sk"],
+    "title": "Entity",
+    "required": ["pk", "sk", "json_schema"],
     "type": "object",
     "properties": {
       "pk": {
         "type": "string",
         "key": "HASH",
-        "alias": "UserID"
+        "alias": "ProjectID"
       },
       "sk": {
         "type": "string",
         "key": "RANGE",
-        "alias": null
+        "alias": "EntityID"
       },
-      "Name": {
-        "type": "string",
-        "filtersort": true
-
-      },
-      "dob": {
-        "type": "string",
-        "filtersort": true
+      "json_schema": {
+        "type": "object"
       }
     }
   }
