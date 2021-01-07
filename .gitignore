@@ -138,3 +138,5 @@ dmypy.json
 cython_debug/
 
 .vscode
+deploy.sh
+invoke_local.py

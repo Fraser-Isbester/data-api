@@ -2,22 +2,6 @@ import json
 from dataclasses import asdict
 from .data import *
 
-def main():
-
-    entity_schemas = [
-        "/Users/fraser/Documents/Dev/personal/data-api/examples/entity_1.json",
-        "/Users/fraser/Documents/Dev/personal/data-api/examples/entity_2.json",
-        "/Users/fraser/Documents/Dev/personal/data-api/examples/entity_3.json"
-    ]
-
-    entities = []
-    for fp in entity_schemas:
-        with open(fp, "r") as f:
-            entity_buffer = EntitySchema(json.loads(f.read()))
-        entities.append(entity_buffer)
-
-    table = DynamoTable(entities, strict=True)
-
 class Maps:
     PyToDyn = {
         "string": "S",
@@ -99,7 +83,10 @@ class EntitySchema(Schema):
             yield return_attribute
 
 
-class DynamoTable:
+class DynamoTable():
+    """
+    """
+
 
     def __init__(self, entities, facets=None, strict=False):
         # control variables
@@ -151,6 +138,11 @@ class DynamoTable:
         ))
 
     def key_attributes(self):
+        """ Iterates over every attribute in every
+
+        :yield: [description]
+        :rtype: [type]
+        """
 
         key_attributes = {}
         key_attributes["partition_key"] = {
@@ -268,8 +260,3 @@ class DynamoTable:
 
     def get_gsis(self):
         pass
-
-
-
-if __name__ == "__main__":
-    main()
