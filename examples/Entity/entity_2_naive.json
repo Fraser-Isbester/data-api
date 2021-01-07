@@ -1,0 +1,21 @@
+{
+    "$id": "https://example.com/person.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Project",
+    "required": ["pk", "sk"],
+    "type": "object",
+    "properties": {
+      "UserID": {
+        "type": "string",
+        "key": "HASH"
+      },
+      "ProjectID": {
+        "type": "string",
+        "key": "RANGE"
+      },
+      "Description": {
+        "type": "string",
+        "default": "A Default project description"
+      }
+    }
+  }

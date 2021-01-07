@@ -1,0 +1,1 @@
+JsonSchema from the end user that describes what they intend to store in the database.

@@ -4,7 +4,7 @@
     "Author": "Fraser Isbester",
     "DateCreated": "Dec 07, 2020, 02:25 PM",
     "DateLastModified": "Dec 07, 2020, 03:17 PM",
-    "Description": "A simple model for real estate and related attributes",
+    "Description": "",
     "AWSService": "Amazon DynamoDB",
     "Version": "2.0"
   },

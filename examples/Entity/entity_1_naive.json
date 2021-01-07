@@ -1,0 +1,21 @@
+{
+    "$id": "https://example.com/person.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "User",
+    "required": ["pk", "sk"],
+    "type": "object",
+    "properties": {
+      "UserID": {
+        "type": "string",
+        "key": "HASH"
+      },
+      "Name": {
+        "type": "string",
+        "filtersort": true
+      },
+      "dob": {
+        "type": "string",
+        "filtersort": true
+      }
+    }
+  }
